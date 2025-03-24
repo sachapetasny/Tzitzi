@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { db } from './firebase';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 
-const SHARE_CODE = 'sol2025';
-
 const BreastButton = ({ side, onClick }) => (
   <button
     onClick={() => onClick(side)}
@@ -18,7 +16,8 @@ const BreastButton = ({ side, onClick }) => (
       justifyContent: 'center',
       alignItems: 'center',
       fontSize: 28,
-      fontWeight: 'bold'
+      fontWeight: 'bold',
+      color: '#d45d79'
     }}
     title={`הנקת צד ${side}`}
   >
@@ -27,11 +26,13 @@ const BreastButton = ({ side, onClick }) => (
 );
 
 function App() {
+  const [shareCode, setShareCode] = useState(localStorage.getItem('shareCode') || '');
   const [history, setHistory] = useState([]);
   const [lastTime, setLastTime] = useState(null);
 
   useEffect(() => {
-    const unsub = onSnapshot(doc(db, 'nursing', SHARE_CODE), (docSnap) => {
+    if (!shareCode) return;
+    const unsub = onSnapshot(doc(db, 'nursing', shareCode), (docSnap) => {
       const data = docSnap.data();
       if (data?.history) {
         setHistory(data.history);
@@ -40,12 +41,12 @@ function App() {
         }
       }
     });
-    return () => unsub();
-  }, []);
+    return () => unsub && unsub();
+  }, [shareCode]);
 
   const saveHistory = async (newHistory) => {
     setHistory(newHistory);
-    await setDoc(doc(db, 'nursing', SHARE_CODE), { history: newHistory });
+    await setDoc(doc(db, 'nursing', shareCode), { history: newHistory });
   };
 
   const handleNurse = async (side) => {
@@ -58,6 +59,33 @@ function App() {
     newHistory.splice(index, 1);
     await saveHistory(newHistory);
   };
+
+  if (!shareCode) {
+    return (
+      <div style={{ textAlign: 'center', padding: 40 }}>
+        <h3>הזן קוד שיתוף</h3>
+        <input
+          value={shareCode}
+          onChange={(e) => setShareCode(e.target.value)}
+          placeholder="לדוגמה: sol2025"
+          style={{ fontSize: 18, padding: 10, textAlign: 'center' }}
+        />
+        <div>
+          <button
+            onClick={() => {
+              if (shareCode.trim()) {
+                localStorage.setItem('shareCode', shareCode.trim());
+                setShareCode(shareCode.trim());
+              }
+            }}
+            style={{ marginTop: 20, padding: '10px 20px', fontSize: 16 }}
+          >
+            התחבר
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: 20, textAlign: 'center' }}>
