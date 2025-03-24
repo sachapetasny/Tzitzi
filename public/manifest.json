@@ -1,0 +1,15 @@
+{
+  "short_name": "Tzitzi",
+  "name": "Tzitzi Baby Tracker",
+  "icons": [
+    {
+      "src": "icon.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#fde2e4",
+  "background_color": "#ffffff"
+}
