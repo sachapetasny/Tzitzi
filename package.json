@@ -1,6 +1,6 @@
 {
   "name": "tzitzi-baby",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "private": true,
   "dependencies": {
     "firebase": "^10.7.0",
