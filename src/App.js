@@ -1,49 +1,92 @@
-import React, { useState, useEffect } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getFirestore, doc, setDoc, onSnapshot } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { db } from './firebase';
+import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDJ3YdKUdS2FH8VS8Q1SkgFL_s_TI85sGo",
-  authDomain: "tzitzi-baby.firebaseapp.com",
-  projectId: "tzitzi-baby",
-  storageBucket: "tzitzi-baby.firebasestorage.app",
-  messagingSenderId: "377401958141",
-  appId: "1:377401958141:web:11273403c92f55ee15e894"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 const SHARE_CODE = 'sol2025';
+
+const BreastButton = ({ side, onClick }) => (
+  <button
+    onClick={() => onClick(side)}
+    style={{
+      width: 100,
+      height: 100,
+      borderRadius: '50%',
+      background: '#fde2e4',
+      margin: 10,
+      border: '2px solid #f08a5d',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      fontSize: 18
+    }}
+    title={`הנקת צד ${side}`}
+  >
+    ●
+  </button>
+);
 
 function App() {
   const [history, setHistory] = useState([]);
+  const [lastTime, setLastTime] = useState(null);
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, 'nursing', SHARE_CODE), (docSnap) => {
       const data = docSnap.data();
-      if (data && data.history) {
+      if (data?.history) {
         setHistory(data.history);
+        if (data.history.length > 0) {
+          setLastTime(new Date(data.history[0].time));
+        }
       }
     });
     return () => unsub();
   }, []);
 
-  const handleNurse = async (side) => {
-    const newEntry = { side, time: new Date().toISOString() };
-    const newHistory = [newEntry, ...history];
+  const saveHistory = async (newHistory) => {
     setHistory(newHistory);
     await setDoc(doc(db, 'nursing', SHARE_CODE), { history: newHistory });
   };
 
+  const handleNurse = async (side) => {
+    const newEntry = { side, time: new Date().toISOString() };
+    await saveHistory([newEntry, ...history]);
+  };
+
+  const handleDelete = async (index) => {
+    const newHistory = [...history];
+    newHistory.splice(index, 1);
+    await saveHistory(newHistory);
+  };
+
   return (
-    <div style={{ textAlign: 'center', padding: 20 }}>
-      <h1>Tzitzi Baby</h1>
-      <button onClick={() => handleNurse('Right')}>Right</button>
-      <button onClick={() => handleNurse('Left')}>Left</button>
-      <ul>
-        {history.map((entry, idx) => (
-          <li key={idx}>
+    <div style={{ padding: 20, textAlign: 'center' }}>
+      <h2>Tzitzi Baby</h2>
+      <div>
+        <BreastButton side='ימין' onClick={handleNurse} />
+        <BreastButton side='שמאל' onClick={handleNurse} />
+      </div>
+      {lastTime && (
+        <div style={{ marginTop: 10, color: '#666' }}>
+          הנקה אחרונה: {lastTime.toLocaleString()} ({history[0]?.side})
+        </div>
+      )}
+      <ul style={{ listStyle: 'none', padding: 0, marginTop: 20 }}>
+        {history.map((entry, index) => (
+          <li key={index} style={{ marginBottom: 6 }}>
             {new Date(entry.time).toLocaleTimeString()} - {entry.side}
+            <button
+              onClick={() => handleDelete(index)}
+              style={{
+                marginLeft: 10,
+                color: 'red',
+                border: 'none',
+                background: 'transparent',
+                fontWeight: 'bold'
+              }}
+              title='מחק'
+            >
+              ×
+            </button>
           </li>
         ))}
       </ul>
