@@ -27,6 +27,7 @@ const BreastButton = ({ side, onClick }) => (
 
 function App() {
   const [shareCode, setShareCode] = useState(localStorage.getItem('shareCode') || '');
+  const [tempCode, setTempCode] = useState('');
   const [history, setHistory] = useState([]);
   const [lastTime, setLastTime] = useState(null);
 
@@ -65,17 +66,17 @@ function App() {
       <div style={{ textAlign: 'center', padding: 40 }}>
         <h3>הזן קוד שיתוף</h3>
         <input
-          value={shareCode}
-          onChange={(e) => setShareCode(e.target.value)}
-          placeholder="לדוגמה: sol2025"
+          value={tempCode}
+          onChange={(e) => setTempCode(e.target.value)}
+          placeholder="למשל: sol2025"
           style={{ fontSize: 18, padding: 10, textAlign: 'center' }}
         />
         <div>
           <button
             onClick={() => {
-              if (shareCode.trim()) {
-                localStorage.setItem('shareCode', shareCode.trim());
-                setShareCode(shareCode.trim());
+              if (tempCode.trim()) {
+                localStorage.setItem('shareCode', tempCode.trim());
+                setShareCode(tempCode.trim());
               }
             }}
             style={{ marginTop: 20, padding: '10px 20px', fontSize: 16 }}
