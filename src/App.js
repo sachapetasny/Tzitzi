@@ -17,7 +17,8 @@ const BreastButton = ({ side, onClick }) => (
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      fontSize: 18
+      fontSize: 28,
+      fontWeight: 'bold'
     }}
     title={`הנקת צד ${side}`}
   >
@@ -60,17 +61,16 @@ function App() {
 
   return (
     <div style={{ padding: 20, textAlign: 'center' }}>
-      <h2>Tzitzi Baby</h2>
-      <div>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginBottom: 20 }}>
         <BreastButton side='ימין' onClick={handleNurse} />
         <BreastButton side='שמאל' onClick={handleNurse} />
       </div>
       {lastTime && (
-        <div style={{ marginTop: 10, color: '#666' }}>
+        <div style={{ marginBottom: 10, color: '#666' }}>
           הנקה אחרונה: {lastTime.toLocaleString()} ({history[0]?.side})
         </div>
       )}
-      <ul style={{ listStyle: 'none', padding: 0, marginTop: 20 }}>
+      <ul style={{ listStyle: 'none', padding: 0 }}>
         {history.map((entry, index) => (
           <li key={index} style={{ marginBottom: 6 }}>
             {new Date(entry.time).toLocaleTimeString()} - {entry.side}
